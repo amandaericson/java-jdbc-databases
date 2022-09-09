@@ -1,14 +1,15 @@
 package com.pluralsight.order.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+
 import com.pluralsight.order.dto.OrderDto;
 import com.pluralsight.order.dto.ParamsDto;
 import com.pluralsight.order.util.Database;
 import com.pluralsight.order.util.ExceptionHandler;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * DAO to get an order
@@ -33,11 +34,17 @@ public class GetOrderDao {
     public OrderDto getOrderById(ParamsDto paramsDto) {
         OrderDto orderDto = null;
 
-        try (Connection con = null;
+        try (Connection con = database.getConnection();
              PreparedStatement ps = createPreparedStatement(con, paramsDto.getOrderId());
              ResultSet rs = createResultSet(ps)
         ) {
-
+            orderDto = new OrderDto();
+            while(rs.next()){
+                orderDto.setOrderId(rs.getLong("ORDER_ID"));
+                orderDto.setCustomerId(rs.getLong("ORDER_CUSTOMER_ID"));
+                orderDto.setDate(rs.getDate("ORDER_DATE"));
+                orderDto.setStatus(rs.getString("ORDER_STATUS"));
+            }
         } catch (SQLException ex) {
             ExceptionHandler.handleException(ex);
         }
@@ -54,7 +61,10 @@ public class GetOrderDao {
      */
     private PreparedStatement createPreparedStatement(Connection con, long orderId) throws SQLException {
 
-        return null;
+        PreparedStatement preparedStatement = con.prepareStatement(query);
+        preparedStatement.setLong(1, orderId);
+        
+        return preparedStatement;
     }
 
     /**
@@ -64,6 +74,8 @@ public class GetOrderDao {
      * @throws SQLException In case of an error
      */
     private ResultSet createResultSet(PreparedStatement ps) throws SQLException {
-        return null;
+        ResultSet resultSet = ps.executeQuery();
+
+        return resultSet;
     }
 }
