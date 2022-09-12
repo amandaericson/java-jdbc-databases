@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -87,7 +88,7 @@ public class InsertOrderDao {
      * @throws SQLException In case of an error
      */
     private PreparedStatement createOrderPreparedStatement(Connection con, OrderDto orderDto) throws SQLException {
-        PreparedStatement ps = con.prepareStatement(sqlOrder);
+        PreparedStatement ps = con.prepareStatement(sqlOrder, Statement.RETURN_GENERATED_KEYS);
         ps.setLong(1, orderDto.getCustomerId());
         ps.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
         ps.setString(3, OrderStatus.CREATED.getStatus());
