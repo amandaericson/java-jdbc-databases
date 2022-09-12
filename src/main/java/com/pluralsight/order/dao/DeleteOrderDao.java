@@ -1,13 +1,14 @@
 package com.pluralsight.order.dao;
 
-import com.pluralsight.order.dto.ParamsDto;
-import com.pluralsight.order.util.Database;
-import com.pluralsight.order.util.ExceptionHandler;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
+
+import com.pluralsight.order.dto.ParamsDto;
+import com.pluralsight.order.util.Database;
+import com.pluralsight.order.util.ExceptionHandler;
 
 /**
  * DAO to delete an order
@@ -34,7 +35,7 @@ public class DeleteOrderDao {
         try (Connection con = null;
              PreparedStatement ps = createPreparedStatement(con, paramsDto.getOrderIds())
         ) {
-
+            numberResults = ps.executeUpdate();
         } catch (SQLException ex) {
             ExceptionHandler.handleException(ex);
         }
@@ -48,7 +49,7 @@ public class DeleteOrderDao {
      * @return Delete SQL statement
      */
     private String buildDeleteSql(List<Long> orderIds) {
-        String ids = null;
+        String ids = String.join(",", Collections.nCopies(orderIds.size(), "?"));
 
         return "DELETE FROM orders o WHERE o.order_id IN (" + ids + ")";
     }
@@ -62,8 +63,12 @@ public class DeleteOrderDao {
      */
     private PreparedStatement createPreparedStatement(Connection con, List<Long> orderIds) throws SQLException {
         String sql = buildDeleteSql(orderIds);
-        PreparedStatement ps = null;
-
+        PreparedStatement ps = con.prepareStatement(sql);
+        int index = 1;
+        for(Long orderId : orderIds){
+            ps.setLong(index++, orderId);
+        }
+        
         return ps;
     }
 }
