@@ -32,7 +32,7 @@ public class DeleteOrderDao {
     public int deleteOrdersById(ParamsDto paramsDto) {
         int numberResults = 0;
 
-        try (Connection con = null;
+        try (Connection con = database.getConnection();
              PreparedStatement ps = createPreparedStatement(con, paramsDto.getOrderIds())
         ) {
             numberResults = ps.executeUpdate();
